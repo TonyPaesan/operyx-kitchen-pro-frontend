@@ -16,11 +16,16 @@ COPY tsconfig.json .
 
 RUN npm run build
 
+
 # ---------- Serve stage ----------
 FROM nginx:alpine
 
+# Copy built frontend
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Copy nginx template (THIS IS CRITICAL)
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# ❌ DO NOT expose ports
+# ❌ DO NOT override CMD
+# Let nginx's default entrypoint handle $PORT + envsubst
